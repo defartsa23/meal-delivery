@@ -10,9 +10,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 model Restaurants {
   id          Int       @default(autoincrement()) @id() @db.UnsignedInt
   name        String
+  password    String
   latitude    Decimal   @db.Decimal(11, 7)
   longitude   Decimal   @db.Decimal(11, 7)
   balance     Decimal   @db.Decimal(11, 3)
@@ -20,6 +22,18 @@ model Restaurants {
   updatedAt   DateTime  @default(now()) @updatedAt
   menus       Menus[]
   hours       Hours[]
+}
+
+model Users {
+  id          Int       @default(autoincrement()) @id() @db.UnsignedInt
+  name        String
+  password    String
+  latitude    Decimal   @db.Decimal(11, 7)
+  longitude   Decimal   @db.Decimal(11, 7)
+  balance     Decimal   @db.Decimal(11, 3)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now()) @updatedAt
+  orders      Orders[]
 }
 
 model Menus {
@@ -30,17 +44,27 @@ model Menus {
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @default(now()) @updatedAt
   restaurant    Restaurants @relation(fields: [restaurantId], references: [id])
+  orders        Orders[]
 }
 
 model Hours {
   id            Int         @default(autoincrement()) @id() @db.UnsignedInt
   restaurantId  Int         @db.UnsignedInt
   day           String
-  open          DateTime   
-  close         DateTime
-  openHour      Int         @db.UnsignedTinyInt()
+  indexOfDay      Int         @db.UnsignedTinyInt
+  open          Int         @db.UnsignedMediumInt
+  close         Int         @db.UnsignedMediumInt
+  closeFilter   Int         @db.UnsignedMediumInt
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @default(now()) @updatedAt
   restaurant    Restaurants @relation(fields: [restaurantId], references: [id])
 }
- 
+
+model Orders {
+  userId  Int         @db.UnsignedInt
+  menuId  Int         @db.UnsignedInt
+  user    Users       @relation(fields: [userId], references: [id])
+  menu    Menus       @relation(fields: [menuId], references: [id])
+
+  @@id([userId, menuId])
+}

@@ -1,102 +1,52 @@
-import { restaurants, users } from './data';
+import { restaurants } from "./seeders"
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-
-async function convertTime12to24(times) {
-    const [time, modifier] = times.split(' ');
-
-    let tempTime = time.split(':');
-    let hours = tempTime[0];
-    let minutes = tempTime[1] == undefined ? '00' : tempTime[1];
-
-    if (hours === '12') {
-        hours = '00';
-    }
-
-    if (modifier === 'PM') {
-        hours = parseInt(hours, 10) + 12;
-    }
-
-    return `${hours}:${minutes}`;
-}
-
-async function mapDays(days) {
-    switch (days.toLowerCase()) {
-        case "weds":
-            return "Wednesday"
-            break;
-    
-        default:
-            if (days.length < 6) return `${days}day`
-            return days
-            break;
-    }
-}
-
-async function mappingDataBusinessHour(days, open, close) {
-    return {
-        day: days,
-        open,
-        close
-    }
-                            
-}
-
-async function addRestaurant() {
-    for (const restaurant of restaurants) {
-        const balance = parseFloat(restaurant.balance);
-        const location = restaurant.location.split(",");
-        const latitude = parseFloat(location[0]);
-        const longitude = parseFloat(location[1]);
-
-        let tempBusiness_hours = [];
-        
-        let condiontsBreak = false;
-        if (restaurant.business_hours) {            
-            const business_hours = restaurant.business_hours.split(" | ");
-            for (const key in business_hours) {
-                const temp = business_hours[key].split(": ");
-                const days = temp[0].split(", ");
-                const [hourOpen, hourClose] = temp[1].split(" - ")
-                const open = await convertTime12to24(hourOpen);
-                const close = await convertTime12to24(hourClose);
-                
-                for (const key in days) {
-                    if (days[key].includes("-")) {
-                        const tempDays = days[key].split('-');
-    
-                        for (const index in tempDays) {
-                            const day = await mapDays(tempDays[index]);                        
-                            tempBusiness_hours.push(await mappingDataBusinessHour(day, open, close));
-                        }
-                    } else {
-                        const day = await mapDays(days[key]);
-                        tempBusiness_hours.push(await mappingDataBusinessHour(day, open, close));
-                    }
-                }                
-            }
-        }
-        
-        const data = {
-            name : restaurant.name,
-            latitude,
-            longitude,
-            balance
-        }
-        
-        // const tempResto = await prisma.restaurants.create({
-        //     data: data
-        // });
-        // console.log(tempResto.id);
-        // for (const menus of restaurant.menu) {
-        //     console.log(menus.name)
-        // }
-    }
-}
+let tempListRestaurant = [];
 
 async function main() {
-    await addRestaurant()
+    const listRestaurant = await restaurants();
+    console.log(listRestaurant[0]);
+    
+    // for (const restaurant of listRestaurant) {        
+    //     let tempResto = await prisma.restaurants.create({
+    //         data: {
+    //             name : restaurant.name,
+    //             password : restaurant.password,
+    //             latitude : restaurant.latitude,
+    //             longitude : restaurant.longitude,
+    //             balance : restaurant.balance
+    //         }
+    //     });
+
+    //     restaurant.menus = await restaurant.menus.map(obj => {
+    //         obj.restaurantId = tempResto.id;
+    //         return obj;
+    //     });
+
+    //     restaurant.hours = await restaurant.hours.map(obj => {
+    //         obj.restaurantId = tempResto.id;
+    //         return obj;
+    //     });
+
+    //     const tempMenu = await prisma.menus.createMany({
+    //         data: restaurant.menus
+    //     })
+
+    //     const tempHour = await prisma.hours.createMany({
+    //         data: restaurant.hours
+    //     })
+
+    //     tempResto['menus'] = tempMenu;
+    //     tempResto['hours'] = tempHour;
+
+    //     tempListRestaurant.push(
+    //         tempResto
+    //     )
+    // }
+
+    // console.log(tempListRestaurant[0]);
+    
 }
 
 main().catch(e => {
