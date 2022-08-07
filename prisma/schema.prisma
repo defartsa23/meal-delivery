@@ -51,7 +51,7 @@ model Hours {
   id            Int         @default(autoincrement()) @id() @db.UnsignedInt
   restaurantId  Int         @db.UnsignedInt
   day           String
-  indexOfDay      Int         @db.UnsignedTinyInt
+  indexOfDay    Int         @db.UnsignedTinyInt
   open          Int         @db.UnsignedMediumInt
   close         Int         @db.UnsignedMediumInt
   closeFilter   Int         @db.UnsignedMediumInt
@@ -61,10 +61,12 @@ model Hours {
 }
 
 model Orders {
-  userId  Int         @db.UnsignedInt
-  menuId  Int         @db.UnsignedInt
-  user    Users       @relation(fields: [userId], references: [id])
-  menu    Menus       @relation(fields: [menuId], references: [id])
+  userId        Int         @db.UnsignedInt
+  menuId        Int         @db.UnsignedInt
+  amount        Decimal     @db.Decimal(11, 3)
+  createdAt     DateTime    @default(now())
+  user          Users       @relation(fields: [userId], references: [id])
+  menu          Menus       @relation(fields: [menuId], references: [id])
 
-  @@id([userId, menuId])
+  @@id([userId, menuId, createdAt])
 }
