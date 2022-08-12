@@ -26,8 +26,13 @@ export class UsersService {
 
     async findAll(params:UserDto) {
         const limit = params.limit;
+        const data = await this.prisma.$queryRaw`SELECT u.id, u.name, u.balance, u.latitude, u.longitude, SUM(o.amount) as totalTransactions FROM Users u INNER JOIN Orders o ON o.userId = u.id GROUP BY u.id ORDER BY totalTransactions DESC LIMIT ${limit};`;
 
-        return await this.prisma.$queryRaw`SELECT u.id, u.name, u.balance, u.latitude, u.longitude, SUM(o.amount) as totalTransactions FROM Users u INNER JOIN Orders o ON o.userId = u.id GROUP BY u.id ORDER BY totalTransactions DESC LIMIT ${limit};`;
+        return {
+            status: 'success',
+            message: `Success get data.`,
+            data : data
+        };
     }
 
     async login(body:LoginDto) {
@@ -125,7 +130,7 @@ export class UsersService {
     
             return {
                 status: 'success',
-                message: `Success get data.`,
+                message: 'Success get data.',
                 data: order
             };
         } catch (error) {
@@ -157,6 +162,12 @@ export class UsersService {
                 query
             );
 
+            if (!data)
+                throw new NotFoundException({
+                  status: 'failed',
+                  message: 'Data not found',
+                })
+
             const temps:string = JSON.stringify(
                 data,
                 (key, value) => (typeof value === 'bigint' ? value.toString() : value) 
@@ -165,8 +176,8 @@ export class UsersService {
 
             return {
                 status: 'success',
-                message: `Success get data.`,
-                data: data
+                message: 'Success get data.',
+                data
             };
         } catch (error) {
             this.logger.error(error.message);
@@ -183,6 +194,8 @@ export class UsersService {
             const tempTransaction = await this.prisma.$transaction(async (prisma) => {
                 const userId = user.id;
                 const restaurantId = params.restaurantId;
+                const dateTime = new Date();
+                
                 let totalAmount = 0;
 
                 const menus = await prisma.menus.findMany({
@@ -203,7 +216,19 @@ export class UsersService {
                             status: "error",
                             message: "Bad Request."
                         })
+                    
+                    await this.prisma.orders.create({
+                        data: {
+                            userId: userId,
+                            menuId: menu.menuId,
+                            amount: menu.price,
+                            createdAt: dateTime
+                        }
+                    })
                 }
+
+                await this.prisma.$queryRaw`SELECT * FROM Users WHERE id = ${userId} FOR UPDATE;`
+                await this.prisma.$queryRaw`SELECT * FROM Restaurants WHERE id = ${userId} FOR UPDATE;`
 
                 const tempUser = await this.prisma.users.update({
                     where: {

@@ -3,12 +3,13 @@ import {
     HttpException,
     HttpStatus,
     Injectable,
-    Logger
+    Logger,
+    NotFoundException
 } from '@nestjs/common';
 import { Restaurants } from '@prisma/client';
 import { getDayName } from 'src/common/helpers/dateDayName.helper';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { LoginDto, RestaurantDto } from './dto/restaurant.dto';
+import { LoginRestoDto, PopularRestoDto, RestaurantDto, TransactionRestoDto } from './dto/restaurant.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadDto } from 'src/common/dto/jwt-payload.dto';
@@ -75,6 +76,13 @@ export class RestaurantsService {
                 params.limit
             )
 
+            if (!resto) {
+                throw new NotFoundException({
+                  status: 'failed',
+                  message: 'Data not found',
+                })
+            }
+
             return {
                 status: 'success',
                 message: `Success get data.`,
@@ -90,7 +98,7 @@ export class RestaurantsService {
         }
     }
 
-    async login(body:LoginDto) {
+    async login(body:LoginRestoDto) {
         try {
             const { id, password } = body;
 
@@ -101,10 +109,10 @@ export class RestaurantsService {
             });
 
             if (!user) {
-                return {
+                throw new NotFoundException({
                   status: 'failed',
                   message: 'Data not found',
-                }
+                })
             }
 
             const isPassMatch = await bcrypt.compare(
@@ -143,7 +151,7 @@ export class RestaurantsService {
         }
     }
 
-    async popular(params:RestaurantDto) {
+    async popular(params:PopularRestoDto) {
         try {
             const limit = params.limit * 1;
             const skip = (params.page - 1) * params.limit;
@@ -169,6 +177,13 @@ export class RestaurantsService {
                 limit
             );
 
+            if (!data)
+                throw new NotFoundException({
+                  status: 'failed',
+                  message: 'Data not found',
+                })
+            
+
             const temps:string = JSON.stringify(
                 data,
                 (key, value) => (typeof value === 'bigint' ? value.toString() : value) 
@@ -191,7 +206,7 @@ export class RestaurantsService {
         }
     }
 
-    async order(params:RestaurantDto) {
+    async order(params:TransactionRestoDto) {
         try {
             const limit = params.limit * 1;
             const skip = (params.page - 1) * params.limit;
@@ -216,6 +231,12 @@ export class RestaurantsService {
                 skip: skip,
                 take: limit
             });
+
+            if (!order)
+                throw new NotFoundException({
+                  status: 'failed',
+                  message: 'Data not found',
+                })
     
             return {
                 status: 'success',
