@@ -7,13 +7,13 @@ Pertama buka file .env dan Dockerfile, lalu sesuaikan variabel DATABASE_URL agar
 ```
 DATABASE_URL="mysql://{username}:{password}@{host}:{port}/{database}"
 ```
-Lalu run perintah berikut:
+Kedua run perintah berikut:
 
 ```bash
 $ npx prisma migrate dev --name init
 $ npx prisma db seed
 ```
-
+Terakhir execute query yang ada di file [sql-stored-function-distance](./sql-stored-function-distance.sql)
 ## Create docker container
 ```bash
 $ sh deploy_script.sh

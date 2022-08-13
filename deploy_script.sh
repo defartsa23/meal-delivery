@@ -1,2 +1,2 @@
 docker build -t meal-delivery .
-docker run -p3001:30001 --name MealDelivery meal-delivery
+docker run -p33331:3001 --name MealDelivery --network mealDelivery meal-delivery
