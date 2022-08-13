@@ -20,7 +20,7 @@ $ sh deploy_script.sh
 ```
 
 ## API Documentation
-Jalankan service terlebih dahulu, lalu buka [Documentation](http://localhost:3000/documentation)
+Jalankan service terlebih dahulu, lalu buka {baseUrl}/documentation
 
 ## Import collection insomnia
 [![Run in Insomnia}](https://insomnia.rest/images/run.svg)](https://insomnia.rest/run/?label=Meal%20Delivery&uri=https%3A%2F%2Fraw.githubusercontent.com%2Fdefartsa23%2Fmeal-delivery%2Fmain%2Fmeal-delivery.json%3Ftoken%3DGHSAT0AAAAAABW7CF67XBU47X4WPQBNZFAIYXW4YWA)
