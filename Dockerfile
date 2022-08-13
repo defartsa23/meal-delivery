@@ -17,7 +17,7 @@ RUN npm run build
 FROM node:16.13.2
 
 ENV PORT=3001
-ENV DATABASE_URL="mysql://root:C0nt4inerS@SicboDB:3306/meal-delivery"
+ENV DATABASE_URL="mysql://{username}:{password}@{host}:{port}/{database}"
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
