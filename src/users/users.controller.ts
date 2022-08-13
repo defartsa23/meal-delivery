@@ -10,7 +10,7 @@ import {
     UsePipes, 
     ValidationPipe 
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth-guard';
@@ -84,6 +84,7 @@ export class UsersController {
     }
 
     @Post('order')
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Endpoint utuk melakukan pemesanan makanan.' })
     @ApiResponse({ status: 200, description: 'Success get data.'})
     @ApiResponse({ status: 404, description: 'Data tidak ditemukan.'})
